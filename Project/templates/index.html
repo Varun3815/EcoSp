@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Greenhouse Management</title>
+    <style>
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Adjust the number of columns as needed */
+            gap: 80px;
+        }
+
+        .grid-item {
+            border: 1px solid;
+            border-radius: 10px;
+            height: 200px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Greenhouse Management</h1>
+
+    <div class="grid-container">
+        <div class="grid-item">
+            <a href="/details/temperature">Temperature Details</a>
+        </div>
+        <div class="grid-item">
+            <a href="/details/soil">Soil Moisture Details</a>
+        </div>
+        <div class="grid-item">
+            <a href="/details/light">Light Details</a>
+        </div>
+        <div class="grid-item">
+            <a href="/details/light">Light Details</a>
+        </div>
+        <!-- Add more links for other parameters if needed -->
+    </div>
+</body>
+</html>

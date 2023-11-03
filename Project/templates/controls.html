@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Greenhouse Control</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/justgage/1.4.0/justgage.min.css">
+    <style>
+        *{
+            margin: 10px;
+        }
+        body {
+            font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            background-color: #f5f5dc;
+        }
+
+        .mdiv {
+            color: white;
+            align-items: center;
+            border: 1px solid;
+            height: 270px;
+            width: 80%;
+            margin: 0 0 15px 15px;
+            background-color: #81bb81;
+        }
+        p {
+            color: #008000;
+        }
+        .parameter-range{
+            color: white;
+            background-color: #81bb81;
+            font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;;
+        }
+        .updatebtn{
+            padding:7px;
+            font-size: 14px;
+            border-width: 1px;
+            border-radius: 3px;
+            cursor: pointer;
+            color: white;
+            background-color: rgb(239, 90, 36);
+        }
+        .updatebtn:hover{
+            background-color: rgba(255, 0, 0, 0.427);
+        }
+    </style>
+</head>
+<body>
+    <center>
+    <h1 style="font-size: 30px;">Greenhouse Control</h1>
+    <br><br>
+    <div class="gauges" style="display: flex;">
+        <div class="mdiv">
+            <h1>Temperature</h1>
+            <div id="temperature" class="gauge"></div>
+            <p id="temperature-alert"></p>
+        </div>
+        <br><br>
+        <div class="mdiv">
+            <h1>Humidity</h1>
+            <div id="humidity" class="gauge"></div>
+            <p id="humidity-alert"></p>
+        </div>
+        <br><br>
+        <div class="mdiv">
+            <h1>Soil Moisture</h1>
+            <div id="soil-moisture" class="gauge"></div>
+            <p id="soil-moisture-alert"></p>
+        </div>
+        <br><br>
+        <div class="mdiv">
+            <h1>Light Level</h1>
+            <div id="light-level" class="gauge"></div>
+            <p id="light-level-alert"></p>
+        </div>
+        <br><br>
+    </div>
+</center>
+    <div class="charts">
+        <div id="temperature-chart" class="chart"></div>
+        <div id="humidity-chart" class="chart"></div>
+        <!-- Add more chart divs for other parameters if needed -->
+    </div>
+    <br><br>
+    <center>
+    <form method="POST" action="/update_range">
+        <div class="parameter-range" style="border: solid black 1px; width: 60%;">
+            <h2>Temperature</h2>
+            <label for="temperature-min" style="font-size: 15px;">Min:</label>
+            <input type="number" id="temperature-min" name="temperature_min" step="0.1" value="{{ optimal_ranges['temperature'][0] }}">
+            <label for="temperature-max" style="font-size: 15px;">Max:</label>
+            <input type="number" id="temperature-max" name="temperature_max" step="0.1" value="{{ optimal_ranges['temperature'][1] }}">
+            <button type="submit" class="updatebtn">Update Ranges</button>
+        </div>
+        <br>
+        <div class="parameter-range" style="border: solid black 1px; width: 60%;">
+            <h2>Humidity</h2>
+            <label for="temperature-min" style="font-size: 15px;">Min:</label>
+            <input type="number" id="temperature-min" name="temperature_min" step="0.1" value="{{ optimal_ranges['temperature'][0] }}">
+            <label for="temperature-max" style="font-size: 15px;">Max:</label>
+            <input type="number" id="temperature-max" name="temperature_max" step="0.1" value="{{ optimal_ranges['temperature'][1] }}">
+            <button type="submit" class="updatebtn">Update Ranges</button>
+        </div>
+        <br>
+        <div class="parameter-range" style="border: solid black 1px; width: 60%;">
+            <h2>Soil Moisture</h2>
+            <label for="temperature-min" style="font-size: 15px;">Min:</label>
+            <input type="number" id="temperature-min" name="temperature_min" step="0.1" value="{{ optimal_ranges['temperature'][0] }}">
+            <label for="temperature-max" style="font-size: 15px;">Max:</label>
+            <input type="number" id="temperature-max" name="temperature_max" step="0.1" value="{{ optimal_ranges['temperature'][1] }}">
+            <button type="submit" class="updatebtn">Update Ranges</button>
+        </div>
+        <!-- Add similar input fields for other parameters -->
+    
+    </form>
+    </center>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.4/raphael-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/justgage/1.4.0/justgage.min.js"></script>
+    <script>
+        const gauges = {
+            temperature: new JustGage({
+                id: 'temperature',
+                title: 'Temperature',
+                min: 65,
+                max: 80,
+                label: '°F',
+                value: 0,
+                levelColors: ['#3498db', '#f39c12', '#e74c3c']
+            }),
+            humidity: new JustGage({
+                id: 'humidity',
+                title: 'Humidity',
+                min: 0,
+                max: 100,
+                label: '%',
+                value: 0,
+                levelColors: ['#2ecc71', '#f1c40f', '#e74c3c']
+            }),
+            soilMoisture: new JustGage({
+                id: 'soil-moisture',
+                title: 'Soil Moisture',
+                min: 0,
+                max: 100,
+                label: '%',
+                value: 0,
+                levelColors: ['#2ecc71', '#f1c40f', '#e74c3c']
+            }),
+            lightLevel: new JustGage({
+                id: 'light-level',
+                title: 'Light Level',
+                min: 0,
+                max: 1000,
+                label: 'Lux',
+                value: 0,
+                levelColors: ['#3498db', '#f39c12', '#e74c3c']
+            })
+        };
+
+        function updateGauges(data) {
+            gauges.temperature.refresh(data.temperature);
+            gauges.humidity.refresh(data.humidity);
+            gauges.soilMoisture.refresh(data.soil_moisture);
+            gauges.lightLevel.refresh(data.light_level);
+        }
+
+        function checkOptimalRanges(data) {
+            for (const parameter in optimal_ranges) {
+                const [minRange, maxRange] = optimal_ranges[parameter];
+                const value = data[parameter];
+                if (value < minRange || value > maxRange) {
+                    // Data is outside the optimal range, display an alert
+                    const alertElement = document.getElementById(`${parameter}-alert`);
+                    alertElement.innerText = `${parameter} is out of range (${value})`;
+                    alertElement.style.color = 'red';
+                } else {
+                    // Data is within the optimal range, clear the alert
+                    const alertElement = document.getElementById(`${parameter}-alert`);
+                    alertElement.innerText = '';
+                }
+            }
+        }
+
+        function fetchData() {
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    updateGauges(data);
+                    checkOptimalRanges(data);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Fetch data every 5 seconds (adjust to your data update interval)
+        setInterval(fetchData, 5000);
+    </script>
+</body>
+</html>
